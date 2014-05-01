@@ -1,6 +1,8 @@
 module Main(main) where
 
 import System.IO
+import Data.Word
+import qualified Data.ByteString as S
 import qualified Data.ByteString.Char8 as C
 
 main = do
@@ -13,20 +15,30 @@ main = do
   hClose handle
 
 run :: String -> IO ()
-run program = run' program 0 C.empty 0
+run program = run' program 0 (replicate (1024*1024) 0) 0
 
-run' :: String -> Int -> C.ByteString -> Int -> IO ()
+run' :: String -> Int -> [Word8] -> Int -> IO ()
 run' program insPointer mem memPointer
-  | currentIns == '>' = error "FIXME: Instruction not implemented: >"
-  | currentIns == '<' = error "FIXME: Instruction not implemented: <"
-  | currentIns == '+' = error "FIXME: Instruction not implemented: +"
-  | currentIns == '-' = error "FIXME: Instruction not implemented: -"
-  | currentIns == '.' = error "FIXME: Instruction not implemented: ."
+  | currentIns == '>' = run' program nextIP mem (memPointer + 1)
+  | currentIns == '<' = run' program nextIP mem (memPointer - 1)
+  | currentIns == '+' = run' program nextIP (applyFunctionAtIndex mem ((+) 1) memPointer) memPointer
+  | currentIns == '-' = run' program nextIP (applyFunctionAtIndex mem ((-) 1) memPointer) memPointer
+  | currentIns == '.' = do
+    putChar $ (C.unpack . S.pack) mem !! memPointer
+    hFlush stdout
+    run' program nextIP mem memPointer
   | currentIns == ',' = error "FIXME: Instruction not implemented: ,"
   | currentIns == '[' = error "FIXME: Instruction not implemented: ["
   | currentIns == ']' = error "FIXME: Instruction not implemented: ]"
   | otherwise = run' program (insPointer + 1) mem memPointer
   where currentIns = program !! insPointer
+        currentData = mem !! memPointer
+        nextIP = insPointer + 1
+
+applyFunctionAtIndex :: [a] -> (a -> a) -> Int -> [a]
+applyFunctionAtIndex (x:xs) f i
+  | i == 0    = (f x):xs
+  | otherwise = x:(applyFunctionAtIndex xs f (i - 1))
 
 -- Local Variables:
 -- compile-command: "ghc --make main.hs -o bin/mlbf"
