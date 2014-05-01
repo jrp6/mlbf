@@ -2,8 +2,8 @@ module Main(main) where
 
 import System.IO
 import Data.Word
-import qualified Data.ByteString as S
-import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Lazy as S
+import qualified Data.ByteString.Lazy.Char8 as C
 
 main = do
   putStr "file> "
@@ -15,7 +15,7 @@ main = do
   hClose handle
 
 run :: String -> IO ()
-run program = run' program 0 (replicate (1024*1024) 0) 0
+run program = run' program 0 [0,0..] 0
 
 run' :: String -> Int -> [Word8] -> Int -> IO ()
 run' program insPointer mem memPointer

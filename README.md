@@ -16,5 +16,3 @@ TODO
 * Implement the remaining instructions
 
 * More sophisticated handling on reaching EOF
-
-* Dynamic memory/handling programs that require more than 1 MiB of RAM
