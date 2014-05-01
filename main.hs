@@ -22,7 +22,7 @@ run' program insPointer mem memPointer
   | currentIns == '>' = run' program nextIP mem (memPointer + 1)
   | currentIns == '<' = run' program nextIP mem (memPointer - 1)
   | currentIns == '+' = run' program nextIP (applyFunctionAtIndex mem ((+) 1) memPointer) memPointer
-  | currentIns == '-' = run' program nextIP (applyFunctionAtIndex mem ((-) 1) memPointer) memPointer
+  | currentIns == '-' = run' program nextIP (applyFunctionAtIndex mem (flip (-) 1) memPointer) memPointer
   | currentIns == '.' = do
     putChar $ (C.unpack . S.pack) mem !! memPointer
     hFlush stdout
