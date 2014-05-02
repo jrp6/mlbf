@@ -50,21 +50,21 @@ applyFunctionAtIndex (x:xs) f i
 findEndOfLoop :: String -> Int -> Int -> Int
 findEndOfLoop program insPointer skip
   | currentIns == '[' = findEndOfLoop program nextIP (skip + 1)
-  | currentIns == ']' = if skip > 0
+  | currentIns == ']' = if skip > 1
                            then findEndOfLoop program nextIP (skip - 1)
                         else insPointer
   | otherwise         = findEndOfLoop program nextIP skip
-  where currentIns = program !! (insPointer + 1) -- Start checking from the cell next to the loop
+  where currentIns = program !! insPointer
         nextIP     = insPointer + 1
 
 findBeginningOfLoop :: String -> Int -> Int -> Int
 findBeginningOfLoop program insPointer skip
   | currentIns == ']' = findBeginningOfLoop program prevIP (skip + 1)
-  | currentIns == '[' = if skip > 0
+  | currentIns == '[' = if skip > 1
                            then findBeginningOfLoop program prevIP (skip - 1)
                         else insPointer
   | otherwise         = findBeginningOfLoop program prevIP skip
-  where currentIns = program !! (insPointer - 1)
+  where currentIns = program !! insPointer
         prevIP     = insPointer - 1
 -- Local Variables:
 -- compile-command: "ghc --make main.hs -o bin/mlbf"
