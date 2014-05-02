@@ -6,8 +6,10 @@ import qualified Data.ByteString.Lazy as S
 import qualified Data.ByteString.Lazy.Char8 as C
 
 main = do
+  -- Turn off buffering as we should not have to do unbuffered IO
+  hSetBuffering stdout NoBuffering
+  hSetBuffering stdin NoBuffering
   putStr "file> "
-  hFlush stdout
   file <- getLine
   handle <- openFile file ReadMode
   program <- hGetContents handle
@@ -25,7 +27,6 @@ run' program insPointer mem memPointer
   | currentIns == '-' = run' program nextIP (applyFunctionAtIndex mem (flip (-) 1) memPointer) memPointer
   | currentIns == '.' = do
     putChar $ (C.unpack . S.pack) mem !! memPointer
-    hFlush stdout
     run' program nextIP mem memPointer
   | currentIns == ',' = error "FIXME: Instruction not implemented: ,"
   | currentIns == '[' = error "FIXME: Instruction not implemented: ["
