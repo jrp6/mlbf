@@ -15,6 +15,4 @@ enter the path to the brainfuck source.
 TODO
 ----
 
-* Implement the remaining instructions
-
-* More sophisticated handling on reaching EOF
+* More sophisticated handling on reaching EOF or invalid programs.

@@ -31,17 +31,41 @@ run' program insPointer mem memPointer
   | currentIns == ',' = do
     input <- getChar >>= return . S.unpack . C.singleton
     run' program nextIP (applyFunctionAtIndex mem (\_ -> head input) memPointer) memPointer
-  | currentIns == '[' = error "FIXME: Instruction not implemented: ["
-  | currentIns == ']' = error "FIXME: Instruction not implemented: ]"
+  | currentIns == '[' = if (mem !! memPointer) == 0
+                           then run' program (findEndOfLoop program insPointer 0) mem memPointer
+                        else run' program nextIP mem memPointer
+  | currentIns == ']' = if (mem !! memPointer) /= 0
+                           then run' program (findBeginningOfLoop program insPointer 0) mem memPointer
+                        else run' program nextIP mem memPointer
   | otherwise = run' program (insPointer + 1) mem memPointer
   where currentIns = program !! insPointer
-        nextIP = insPointer + 1
+        nextIP     = insPointer + 1
 
 applyFunctionAtIndex :: [a] -> (a -> a) -> Int -> [a]
 applyFunctionAtIndex (x:xs) f i
   | i == 0    = (f x):xs
   | otherwise = x:(applyFunctionAtIndex xs f (i - 1))
 
+-- When calling find{End,Beginning}OfLoop always use the constant 0 as the last argument
+findEndOfLoop :: String -> Int -> Int -> Int
+findEndOfLoop program insPointer skip
+  | currentIns == '[' = findEndOfLoop program nextIP (skip + 1)
+  | currentIns == ']' = if skip > 0
+                           then findEndOfLoop program nextIP (skip - 1)
+                        else insPointer
+  | otherwise         = findEndOfLoop program nextIP skip
+  where currentIns = program !! (insPointer + 1) -- Start checking from the cell next to the loop
+        nextIP     = insPointer + 1
+
+findBeginningOfLoop :: String -> Int -> Int -> Int
+findBeginningOfLoop program insPointer skip
+  | currentIns == ']' = findBeginningOfLoop program prevIP (skip + 1)
+  | currentIns == '[' = if skip > 0
+                           then findBeginningOfLoop program prevIP (skip - 1)
+                        else insPointer
+  | otherwise         = findBeginningOfLoop program prevIP skip
+  where currentIns = program !! (insPointer - 1)
+        prevIP     = insPointer - 1
 -- Local Variables:
 -- compile-command: "ghc --make main.hs -o bin/mlbf"
 -- End:
