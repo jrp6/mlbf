@@ -28,12 +28,13 @@ run' program insPointer mem memPointer
   | currentIns == '.' = do
     putChar $ (C.unpack . S.pack) mem !! memPointer
     run' program nextIP mem memPointer
-  | currentIns == ',' = error "FIXME: Instruction not implemented: ,"
+  | currentIns == ',' = do
+    input <- getChar >>= return . S.unpack . C.singleton
+    run' program nextIP (applyFunctionAtIndex mem (\_ -> head input) memPointer) memPointer
   | currentIns == '[' = error "FIXME: Instruction not implemented: ["
   | currentIns == ']' = error "FIXME: Instruction not implemented: ]"
   | otherwise = run' program (insPointer + 1) mem memPointer
   where currentIns = program !! insPointer
-        currentData = mem !! memPointer
         nextIP = insPointer + 1
 
 applyFunctionAtIndex :: [a] -> (a -> a) -> Int -> [a]
